@@ -1,0 +1,82 @@
+name: Publier Les terres intérieures sur nogues.app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-monde-pour-miroir
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check && pnpm test && pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-monde-pour-miroir
+          path: dist/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SFTP_HOST: ${{ secrets.OVH_SFTP_HOST }}
+      SFTP_USER: ${{ secrets.OVH_SFTP_USER }}
+      LFTP_PASSWORD: ${{ secrets.OVH_SFTP_PASSWORD }}
+      ROOT_DIR: ${{ vars.OVH_TARGET_DIR || 'www' }}
+    steps:
+      - name: Vérifier les accès et circonscrire le dossier cible
+        run: |
+          if [ -z "$SFTP_HOST" ] || [ -z "$SFTP_USER" ] || [ -z "$LFTP_PASSWORD" ]; then
+            echo "::error::Renseigner OVH_SFTP_HOST, OVH_SFTP_USER et OVH_SFTP_PASSWORD dans les secrets Actions de CE dépôt. Les secrets d'un autre dépôt ne sont pas partagés automatiquement."
+            exit 1
+          fi
+          if ! [[ "$ROOT_DIR" =~ ^[a-zA-Z0-9_./-]+$ ]] || [[ "/$ROOT_DIR/" == *"/../"* ]] || [[ "$ROOT_DIR" == '.' ]] || [[ "$ROOT_DIR" == '/' ]]; then
+            echo "::error::OVH_TARGET_DIR doit désigner la racine web, pas un chemin vide ou ambigu."
+            exit 1
+          fi
+          echo "TARGET_DIR=${ROOT_DIR%/}/monde-pour-miroir" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-monde-pour-miroir
+          path: dist
+      - name: Installer lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+      - name: Créer le répertoire et publier exclusivement son contenu
+        run: |
+          lftp --env-password -u "$SFTP_USER" "sftp://$SFTP_HOST" -e "
+            set cmd:fail-exit yes;
+            set sftp:auto-confirm yes;
+            set net:timeout 20; set net:max-retries 2; set net:reconnect-interval-base 5;
+            mkdir -p -f '$TARGET_DIR';
+            mirror --reverse --no-perms --parallel=4 dist/ '$TARGET_DIR';
+            bye"
+          echo "Fichiers publiés dans $TARGET_DIR, sans suppression distante." >> "$GITHUB_STEP_SUMMARY"
+      - name: Vérifier la page et les décors publics
+        run: |
+          curl --fail --silent --show-error --retry 3 --retry-delay 3 https://nogues.app/monde-pour-miroir/ -o /tmp/page.html
+          grep -q 'Les terres intérieures' /tmp/page.html
+          for image in paysage faille desert iles brumes miroirs horizon; do
+            curl --fail --silent --show-error "https://nogues.app/monde-pour-miroir/images/$image.webp" -o /dev/null
+          done
+          echo "Site vérifié : https://nogues.app/monde-pour-miroir/" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,54 @@
+[
+  {
+    "test": "Préférence système prefers-reduced-motion appliquée dès le chargement",
+    "result": "PASS"
+  },
+  {
+    "test": "Entrer dans la traversée et transférer le focus à la halte",
+    "result": "PASS"
+  },
+  {
+    "test": "Parcours successif des seize haltes et des six régions jusqu’au retour, extraits exacts, Escape et restauration du focus",
+    "result": "PASS"
+  },
+  {
+    "test": "Revoir le départ depuis la fin du chapitre 16",
+    "result": "PASS"
+  },
+  {
+    "test": "Vue d’ensemble fonctionnelle : six régions, seize accès et retour à la halte précédente",
+    "result": "PASS"
+  },
+  {
+    "test": "Bibliothèque, lecteur suivant/précédent, taille de texte et retour à la halte lue",
+    "result": "PASS"
+  },
+  {
+    "test": "Lecture calme sans paysage animé et persistance locale des préférences",
+    "result": "PASS"
+  },
+  {
+    "test": "Périmètre, sources, confidentialité et distinction destinations/territoires explicités",
+    "result": "PASS"
+  },
+  {
+    "test": "Aucune erreur JavaScript à l’exécution desktop",
+    "result": "PASS"
+  },
+  {
+    "test": "Mobile 390×844 : interface sans débordement, panneaux, extrait et ellipse, navigation et retour ch16",
+    "result": "PASS"
+  },
+  {
+    "test": "Mobile : mode lecture calme et navigation conservée",
+    "result": "PASS"
+  },
+  {
+    "test": "Clavier : lien d’évitement, Enter, focus contenu dans le panneau, Escape et restitution",
+    "result": "PASS"
+  },
+  {
+    "test": "Mode normal : déplacement doux réel; commande de mouvement réduit opérationnelle",
+    "result": "PASS"
+  }
+]

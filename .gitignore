@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.deploy-test/
+.env
+.env.*
+!.env.example
+*.log
+tests/screenshots/
+*.docx
+*.epub
+*.pdf
+.DS_Store

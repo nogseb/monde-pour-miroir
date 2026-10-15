@@ -1,0 +1,29 @@
+{
+  "name": "monde-pour-miroir",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.18.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "lucide-react": "0.453.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "5.0.4",
+    "@tailwindcss/vite": "4.1.14",
+    "tailwindcss": "4.1.14",
+    "@types/react": "19.2.1",
+    "@types/react-dom": "19.2.1",
+    "@types/node": "24.7.0",
+    "typescript": "5.9.3",
+    "vite": "7.1.9",
+    "vitest": "2.1.9"
+  }
+}
